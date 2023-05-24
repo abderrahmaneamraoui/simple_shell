@@ -19,10 +19,9 @@ char **parse_line(char *line);
 void print_hello(void);
 void print_prompt(void);
 char **tokenize_input(char *input);
-char *find_command_path(char *command);
 void execute_command(char **args);
 char *custom_getline(void);
 char **tokenize(char *line, char *delim);
 int execute(char **args);
-
+char *find_command_path(char *command);
 #endif
