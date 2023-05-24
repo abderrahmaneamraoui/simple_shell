@@ -73,7 +73,7 @@ void exit_shell(int fd, char *msg, int code);
 int execute(char **args);
 int exec_nb(char **args);
 int search_shell(char **args);
-int exec_builtin(char **args, int bcase);
+int execute_builtin(char **args, int bcase);
 int access_check(char *command, char *arg);
 char *prep_execve(char *arg);
 char *read_textfile(char *filename);
@@ -99,11 +99,13 @@ list_t *__add_node(list_t **head, void *ptr);
 list_t *__add_node_end(list_t **head, void *ptr);
 void __free_list(list_t *head);
 char **arrayify(list_s *head);
-list_s *listifY(char **arr);
+list_s *listify(char **arr);
 void free_double(char **list);
 void free_list_full(list_s *head);
 list_s *get_node_at_index(list_s *head, unsigned int index);
 list_s *insert_node_at_index(list_s **head, unsigned int idx, char *ptr);
 int delete_node_at_index(list_s **head, unsigned int index);
-
+void _free(char **list, int count);
+char **_strtok(char *str, char *delim);
+void main_loop(char *filename);
 #endif

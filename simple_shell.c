@@ -78,48 +78,36 @@ waitpid(pid, &status, WUNTRACED);
 *
 * This function is the entry point for the shell program. It reads input
 * from standard input, tokenizes it, and executes the specified command.
-*
+* @argc: Number of arguments
+* @argv: list of arguments
+* @envp: environment
 * Return: Always 0
 */
-int main(void)
+int main(int argc, char **argv, char **envp)
 {
-char input[MAX_INPUT_LENGTH];
-char **args;
+	char *filename = NULL;
 
-while (1)
-{
-print_prompt();
+	get_prog_name(argv[0]);
 
-if (fgets(input, MAX_INPUT_LENGTH, stdin) == NULL)
-{
-printf("\n");
-break;
-}
+	/* argc the right amount of arguments */
+	if (argc > 2)
+		return (-1);
 
-args = tokenize_input(input);
-if (args == NULL)
-{
-fprintf(stderr, "Failed to tokenize input\n");
-continue;
-}
-
-if (args[0] == NULL)
-{
-free(args);
-continue;
-}
-
-execute_command(args);
-
-free(args);
-}
-filename = argv[1];
+	/* check if argv[1] is a file */
+	if (argv && argv[1])
+		filename = argv[1];
 	/* signal handler */
 	signal(SIGINT, signal_handler);
 	/* initialize the environment */
 	do_env((char *)envp, NULL);
 
+	/* initialize the linum */
+	linum(1);
+
+	/* read, tokenize, execute loop */
 	main_loop(filename);
 
-return (0);
+	/* clean up */
+
+	return (0);
 }

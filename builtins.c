@@ -114,7 +114,7 @@ int cd(char **args)
 	else if (args[1])
 	{
 		getcwd(lastdir, 100);
-		chdir(token[1]);
+		chdir(args[1]);
 	}
 	else
 	{
