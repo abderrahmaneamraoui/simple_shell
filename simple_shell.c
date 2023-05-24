@@ -113,6 +113,13 @@ execute_command(args);
 
 free(args);
 }
+filename = argv[1];
+	/* signal handler */
+	signal(SIGINT, signal_handler);
+	/* initialize the environment */
+	do_env((char *)envp, NULL);
+
+	main_loop(filename);
 
 return (0);
 }
