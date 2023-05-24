@@ -1,7 +1,8 @@
 #include "shell.h"
+
 /**
- * Handles the "env" command by printing the current environment variables.
- *
+ * handle_env_command - handles env command
+ * Return: void
  * @param args An array of strings representing the arguments to the command.
  * The first argument should be the name of the command itself ("env").
  */
@@ -14,12 +15,11 @@ while (*env)
 printf("%s\n", *env++);
 }
 }
+
 /**
- * Executes a command by searching for the command in the directories listed
- * in PATH.
- * If the command is "env", calls the handle_env_command function to
- * print environment variables.
- *
+ * execute_command - executes command
+ * @args: arugmes
+ * Return: void
  * @param args An array of strings representing the arguments to the command.
  * The first argument should be the name of the command itself.
  */

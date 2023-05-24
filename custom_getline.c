@@ -2,6 +2,10 @@
 
 #define BUFFER_SIZE 1024
 
+/**
+ * *custom_getline - gets custom line
+ * Return: void
+ */
 char *custom_getline(void)
 {
 static char buffer[BUFFER_SIZE];
@@ -45,6 +49,10 @@ return (NULL);
 return (line);
 }
 
+/**
+ * main - main fun
+ * Return: void
+ */
 int main(void)
 {
 char *line;
@@ -56,3 +64,4 @@ free(line);
 
 return (0);
 }
+
