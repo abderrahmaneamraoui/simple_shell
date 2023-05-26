@@ -102,7 +102,6 @@ if (args == NULL)
 fprintf(stderr, "Failed to tokenize input\n");
 continue;
 }
-
 if (args[0] == NULL)
 {
 free(args);
