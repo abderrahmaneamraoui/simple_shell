@@ -1,11 +1,11 @@
 #include "shell.h"
 
 /**
- * list_len - size of a list_s
- * @h: struct list_s, first node
+ * __list_len - size of a list_t
+ * @h: struct list_t, first node
  * Return: number of nodes
  */
-size_t list_len(list_s *h)
+size_t __list_len(list_t *h)
 {
 	int i = 0;
 
@@ -16,16 +16,16 @@ size_t list_len(list_s *h)
 
 
 /**
- * add_node - adds a new node at the beginning of a list_s list
- * @head: struct list_s, first node
+ * __add_node - adds a new node at the beginning of a list_t list
+ * @head: struct list_t, first node
  * @ptr: the pointer data
- * Return: new list_s
+ * Return: new list_t
  */
-list_s *add_node(list_s **head, char *ptr)
+list_t *__add_node(list_t **head, void *ptr)
 {
-	list_s *new = NULL;
+	list_t *new = NULL;
 
-	new = do_mem(sizeof(list_s), NULL);
+	new = malloc(sizeof(list_t));
 	if (!new)
 	{
 		return (NULL);
@@ -38,16 +38,16 @@ list_s *add_node(list_s **head, char *ptr)
 }
 
 /**
- * add_node_end - adds a new node at the end of a list_t list
- * @head: struct list_s, node
+ * __add_node_end - adds a new node at the end of a list_t list
+ * @head: struct list_t, node
  * @ptr: the pointer data
- * Return: new list_s
+ * Return: new list_t
  */
-list_s *add_node_end(list_s **head, char *ptr)
+list_t *__add_node_end(list_t **head, void *ptr)
 {
-	list_s *new = NULL, *last = NULL;
+	list_t *new = NULL, *last = NULL;
 
-	new = do_mem(sizeof(list_s), NULL);
+	new = malloc(sizeof(list_t));
 	if (!new)
 	{
 		return (NULL);
@@ -70,17 +70,17 @@ list_s *add_node_end(list_s **head, char *ptr)
 }
 
 /**
- * free_list - frees list_s
- * @head: linked list , list_s
+ * __free_list - frees list_t
+ * @head: linked list , list_t
  */
-void free_list(list_s *head)
+void __free_list(list_t *head)
 {
-	list_s *hold = NULL;
+	list_t *hold = NULL;
 
 	while (head != NULL)
 	{
 		hold = head;
 		head = head->next;
-		do_mem(0, hold);
+		free(hold);
 	}
 }

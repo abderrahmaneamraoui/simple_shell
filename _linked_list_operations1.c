@@ -1,30 +1,29 @@
 #include "shell.h"
 
 /**
- * __free_list_full - frees list_t and all contained pointers
- * @head: linked list , list_t
+ * free_list_full - frees list_s and all contained pointers
+ * @head: linked list , list_s
  */
-void __free_list_full(list_t *head)
+void free_list_full(list_s *head)
 {
-	list_t *hold = NULL;
+	list_s *hold = NULL;
 
 	while (head != NULL)
 	{
 		hold = head;
 		head = head->next;
-		/* printf("EXITMEMORY: %s\n", (char *)(hold->ptr)); */
-		free(hold->ptr);
-		free(hold);
+		do_mem(0, hold->ptr);
+		do_mem(0, hold);
 	}
 }
 
 /**
- * __get_node_at_index - return nth node of a linked list
+ * get_node_at_index - return nth node of a linked list
  * @head: pointer to the start of linked list
  * @index: index
  * Return: the nth node
  */
-list_t *__get_node_at_index(list_t *head, unsigned int index)
+list_s *get_node_at_index(list_s *head, unsigned int index)
 {
 	unsigned int i = 0;
 
@@ -35,20 +34,20 @@ list_t *__get_node_at_index(list_t *head, unsigned int index)
 }
 
 /**
- * __insert_node_at_index - inserts a new node at a given position
+ * insert_node_at_index - inserts a new node at a given position
  * @head: pointer to the beginning of linked list
  * @idx: index where to insert
  * @ptr: value for ptr
  * Return: address of new node or NULL if fails
  */
-list_t *__insert_node_at_index(list_t **head, unsigned int idx, void *ptr)
+list_s *insert_node_at_index(list_s **head, unsigned int idx, char *ptr)
 {
-	list_t *new = NULL, *hold = *head;
+	list_s *new = NULL, *hold = *head;
 	unsigned int i = 0;
 
 	if (!idx)
 	{
-		new = malloc(sizeof(list_t));
+		new = do_mem(sizeof(list_s), NULL);
 		if (!new)
 			return (NULL);
 
@@ -64,7 +63,7 @@ list_t *__insert_node_at_index(list_t **head, unsigned int idx, void *ptr)
 	{
 		if (i == (idx - 1))
 		{
-			new = malloc(sizeof(list_t));
+			new = do_mem(sizeof(list_s), NULL);
 			if (!new)
 				return (NULL);
 			(*new).ptr = ptr;
@@ -79,14 +78,14 @@ list_t *__insert_node_at_index(list_t **head, unsigned int idx, void *ptr)
 }
 
 /**
- * __delete_node_at_index - deletes a node at a given position
+ * delete_node_at_index - deletes a node at a given position
  * @head: pointer to the beginning of linked list
  * @index: index to be deleted
  * Return: 1 if succesful -1 if fails
  */
-int __delete_node_at_index(list_t **head, unsigned int index)
+int delete_node_at_index(list_s **head, unsigned int index)
 {
-	list_t *hold = NULL, *delete = NULL;
+	list_s *hold = NULL, *delete = NULL;
 	unsigned int i = 0, action = 0;
 
 	if (!*head)
@@ -102,20 +101,20 @@ int __delete_node_at_index(list_t **head, unsigned int index)
 	{
 		delete = (*hold).next;
 		(*hold).next = (*delete).next;
-		free(delete);
+		do_mem(0, delete);
 		return (1);
 	}
 	else if (!index && (**head).next)
 	{
 		delete = *head;
 		*head = (*delete).next;
-		free(delete);
+		do_mem(0, delete);
 		return (1);
 	}
 	else if (!index && *head)
 	{
 		*head = NULL;
-		free(*head);
+		do_mem(0, *head);
 		return (1);
 	}
 	return (-1);

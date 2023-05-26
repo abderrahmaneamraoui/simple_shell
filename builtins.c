@@ -1,10 +1,9 @@
 #include "shell.h"
 
 /**
- * get_builtins - list builtins commands
- * Return: pointer holding list of commands
- */
-
+  * get_builtins - list of builtin commands
+  * Return: double pointer holding list of commands
+  */
 char **get_builtins()
 {
 	char **builtins;
@@ -12,20 +11,19 @@ char **get_builtins()
 	builtins = do_mem(sizeof(char *) * 6, NULL);
 
 	builtins[0] = "exit";
-	builtins[1] = "env";
-	builtins[2] = "setenv";
-	builtins[3] = "unsetenv";
-	builtins[4] = "cd";
+	builtins[1] = "cd";
+	builtins[2] = "env";
+	builtins[3] = "setenv";
+	builtins[4] = "unsetenv";
 	builtins[5] = NULL;
 
 	return (builtins);
 }
 
 /**
- * env_builtin - prints environment
- * Return: 0 if successful
+ * env_builtin - Lists environment
+ *  Return: 0 if successfull
  */
-
 int env_builtin(void)
 {
 	char **env;
@@ -39,62 +37,61 @@ int env_builtin(void)
 		write(STDOUT_FILENO, "\n", 1);
 		i = i + 1;
 	}
-	free_double(env);
+	free_double_array(env);
 
 	return (0);
 }
 
 /**
- * setenv - set environment variable
- * @args: the arguments for the command
- * Return: retrun code
+ * setenv_builtin - Set an environment variable
+ * @tokens: the tokens for the command
+ * Return: the return code
  */
-
-int setenv(char **args)
+int setenv_builtin(char **tokens)
 {
 	char *ret = NULL;
 
-	if (!args[1] || !args[2])
+	if (!tokens[1] || !tokens[2])
 	{
-		print_error(args[0], 3001, NULL);
+		my_error(tokens[0], 3001, NULL);
 		return (1);
 	}
-	do_env(NULL, args[1]);
+	do_env(NULL, tokens[1]);
 
-	ret = do_mem(_strlen(args[1]) + _strlen(args[2]) + 2, NULL);
-	_strcat(ret, args[1]);
+	ret = do_mem(_strlen(tokens[1]) + _strlen(tokens[2]) + 2, NULL);
+	_strcat(ret, tokens[1]);
 	_strcat(ret, "=");
-	_strcat(ret, args[2]);
+	_strcat(ret, tokens[2]);
 	do_env(ret, NULL);
 
 	return (0);
 }
 
 /**
- * unsetenv - Unset environment varibale
- * @args: argument for command
- * Return:return code
+ * unsetenv_builtin - Unset an environment variable
+ * @tokens: the tokens for the command
+ * Return: the return code
  */
-
-int unsetenv(char **args)
+int unsetenv_builtin(char **tokens)
 {
-	if (!args[1])
+
+	if (!tokens[1])
 	{
-		print_error(args[0], 3302, NULL);
+		my_error(tokens[0], 3002, NULL);
 		return (1);
 	}
-	do_env(NULL, args[1]);
+	do_env(NULL, tokens[1]);
 
 	return (0);
 }
 
-/**
- * cd - executes cd function
- * @args: argguments for the command
- * Return: exit status
- */
 
-int cd(char **args)
+/**
+ * cd_builtin - executes cd function, changes directory
+ * @tokens: command input into prompt tokenized
+ * Return: the exit status
+ */
+int cd_builtin(char **tokens)
 {
 	char *HOME = NULL, *templd;
 	static char *lastdir;
@@ -103,7 +100,7 @@ int cd(char **args)
 	if (!lastdir)
 		lastdir = do_mem(100, NULL);
 	templd = do_mem(100, NULL);
-	if (args[1] && _strcmp(args[1], "-") == 0)
+	if (tokens[1] && _strcmp(tokens[1], "-") == 0)
 	{
 		getcwd(templd, 100);
 		chdir(lastdir);
@@ -111,10 +108,10 @@ int cd(char **args)
 		write(STDOUT_FILENO, "\n", 1);
 		lastdir = templd;
 	}
-	else if (args[1])
+	else if (tokens[1])
 	{
 		getcwd(lastdir, 100);
-		chdir(args[1]);
+		chdir(tokens[1]);
 	}
 	else
 	{
@@ -123,4 +120,3 @@ int cd(char **args)
 	}
 	return (0);
 }
-

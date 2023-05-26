@@ -1,113 +1,109 @@
 #include "shell.h"
 
 /**
-* print_prompt - Prints shell prompt
-*
-* This function prints the shell prompt "#cisfun$ ".
-*/
-void print_prompt(void)
+ * linum - get current line number and/or add to it
+ * @add: if not zero, add this amt
+ * Return: the line number
+ */
+int linum(int add)
 {
-printf("#cisfun$ ");
+	static int line;
+
+	line = line + add;
+	return (line);
 }
 
 /**
-* tokenize_input - Tokenizes input string
-* @input: Input string
-*
-* This function tokenizes the input string into an array of strings.
-*
-* Return: Array of strings
-*/
-char **tokenize_input(char *input)
+ * get_prog_name - gets the program name
+ * @name: the name of the prog (first execution)
+ * Return: the name of the program
+ */
+char *get_prog_name(char *name)
 {
-char **tokens;
-char *token;
-int i = 0;
+	static char *ret;
 
-tokens = malloc(sizeof(char *) * MAX_INPUT_LENGTH);
-if (tokens == NULL)
-{
-return (NULL);
-}
-
-token = strtok(input, " \t\n");
-while (token != NULL)
-{
-tokens[i++] = token;
-token = strtok(NULL, " \t\n");
-}
-tokens[i] = NULL;
-
-return (tokens);
+	if (!ret)
+	{
+		ret = name;
+	}
+	return (ret);
 }
 
 /**
-* execute_command - Executes a command
-* @args: Array of command arguments
-*
-* This function executes the command specified by the array of command
-* arguments.
-*/
-void execute_command(char **args)
+ * my_error - custom error printing
+ * @command: the message to print
+ * @status: the type of error to print
+ * @extra: any extra text
+ */
+void my_error(char *command, int status, char *extra)
 {
-pid_t pid;
-int status;
+	char *name = NULL;
+	char *line = NULL;
+	char *msg = NULL;
 
-pid = fork();
-if (pid == 0)
-{
-execve(args[0], args, NULL);
-perror("execve");
-_exit(1);
-}
-else if (pid < 0)
-{
-perror("fork");
-}
-else
-{
+	name = get_prog_name(NULL);
+	line = _itoa(linum(0));
+	write(STDERR_FILENO, name, _strlen(name));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, line, _strlen(line));
 
-do {
-waitpid(pid, &status, WUNTRACED);
-} while (!WIFEXITED(status) && !WIFSIGNALED(status));
+	write(STDERR_FILENO, ": ", 2);
+	write(STDERR_FILENO, command, _strlen(command));
+	write(STDERR_FILENO, ": ", 2);
+
+	switch (status)
+	{
+	case 2:
+		msg = "not found";
+		break;
+	case 126:
+		msg = "Permission denied";
+		break;
+	case 127:
+		msg = "not found";
+		break;
+	case 9000:
+
+		msg = "Illegal number: ";
+		break;
+	default:
+		msg = "Unknown error occured.";
+	}
+	write(STDERR_FILENO, msg, _strlen(msg));
+
+	if (extra)
+		write(STDERR_FILENO, extra, _strlen(extra));
+
+	write(STDERR_FILENO, "\n", 1);
 }
-}
+
 
 /**
-* main - Shell entry point
-*
-* This function is the entry point for the shell program. It reads input
-* from standard input, tokenizes it, and executes the specified command.
-* @argc: Number of arguments
-* @argv: list of arguments
-* @envp: environment
-* Return: Always 0
-*/
+  * main - simple shell
+  * @argc: Number of arguments
+  * @argv: list of arguments
+  * @envp: environment
+  * Return: 0 if successful
+  */
 int main(int argc, char **argv, char **envp)
 {
 	char *filename = NULL;
 
 	get_prog_name(argv[0]);
 
-	/* argc the right amount of arguments */
 	if (argc > 2)
 		return (-1);
 
-	/* check if argv[1] is a file */
 	if (argv && argv[1])
 		filename = argv[1];
-	/* signal handler */
+
 	signal(SIGINT, signal_handler);
-	/* initialize the environment */
+
 	do_env((char *)envp, NULL);
 
-	/* initialize the linum */
 	linum(1);
 
-	/* read, tokenize, execute loop */
 	main_loop(filename);
-
-	/* clean up */
 
 	return (0);
 }

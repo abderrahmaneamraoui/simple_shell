@@ -16,7 +16,7 @@ void *do_mem(size_t size, void *ptr)
 	{
 		ret = malloc(size);
 		if (!ret)
-			exit_shell(2, "malloc failed", EXIT_FAILURE);
+			do_exit(2, "malloc failed", EXIT_FAILURE);
 		for (i = 0; (unsigned int)i < size; i++)
 			((char *)ret)[i] = 0;
 		__add_node_end(&all, ret);
@@ -45,13 +45,12 @@ void *do_mem(size_t size, void *ptr)
 }
 
 /**
- * exit_shell - custom exit with error message
- * @fd: file descriptor
- * @msg: message
- * @code: numerical exit code
+ * do_exit - custom exit with error message, code, and automatic memory cleanup
+ * @fd: the file descriptor to write the message
+ * @msg: the message to print
+ * @code: the numerical exit code
  */
-
-void exit_shell(int fd, char *msg, int code)
+void do_exit(int fd, char *msg, int code)
 {
 	if (*msg)
 	{

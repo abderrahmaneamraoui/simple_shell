@@ -1,10 +1,11 @@
 #include "shell.h"
 
-/**
- * get_path - get the path
- * Return: pointer
- */
+char *get_env_val(char *);
 
+/**
+ * get_path - get the path in a double char pointer
+ * Return: the double char pointer of the path
+ */
 char **get_path()
 {
 	char *temp = NULL;
@@ -17,12 +18,11 @@ char **get_path()
 }
 
 /**
- * get_env_value - get env variable value
- * @name: name of variable to get value of
- * Return: pointer
+ * get_env_val - get the value of an env variable
+ * @name: the name of the variable to get the value of
+ * Return: the string pointer to where the value part of the variable starts
  */
-
-char *get_env_value(char *name)
+char *get_env_val(char *name)
 {
 	int i = 0, j = 0;
 	char **env = NULL;
@@ -44,64 +44,88 @@ char *get_env_value(char *name)
 			if (!env[i][j + 1])
 				return (NULL);
 			res = do_mem((_strlen((env[i]) + j + 1) + 1), NULL);
-			_strcpy(res, (env[i] + j + 1));
-			free_double(env);
+			_strcpy(res, ((env[i]) + j + 1));
+			free_double_array(env);
 			return (res);
 		}
 		i++;
 	}
-	free_double(env);
+	free_double_array(env);
 	return (NULL);
 }
 
 /**
- * get_env - get current environment
- * Return: the environment
- */
+  * find_path - finds if a command exists in a path and returns the path
+  * @path: paths to search
+  * @command: command to search for
+  * Return: path where command is
+  */
+char *find_path(char **path, char *command)
+{
+	struct dirent *de = NULL;
+	DIR *dr = NULL;
+	int i = 0;
 
+	if (!command || !path)
+		return (NULL);
+	for (i = 0; path[i]; i++)
+	{
+		dr = opendir(path[i]);
+		if (!dr)
+		{
+			write(STDOUT_FILENO, "Could not open directory\n", 25);
+			closedir(dr);
+		}
+		else
+		{
+			while ((de = readdir(dr)) != NULL)
+			{
+				if (_strcmp((*de).d_name, command) == 0)
+				{
+					closedir(dr);
+					return (path[i]);
+				}
+			}
+			closedir(dr);
+		}
+	}
+	return (NULL);
+}
+
+/**
+ * get_env - get current environment as a malloc'd, NULL-terminating char**
+ * Return: the environment as a char**
+ */
 char **get_env(void)
 {
 	return (do_env(NULL, NULL));
 }
 
 /**
- * do_env - get env
- * @add: a variable to add
- * @delete: a variable to delete
- * Return: the current environment after any changes
+ * get_full_command - get the command with the correct path prepended
+ * @path: all of the possible paths
+ * @command: the base command
+ * Return: the correct path + command (leave command alone if already done)
  */
-char **do_env(char *add, char *delete)
+char *get_full_command(char *path, char *command)
 {
-	static list_s *my_env;
-	char *tmp = NULL;
-	int len = 0, i = 0, j = 0;
+	int i = 0, j = 0;
+	char *res = NULL;
+	char **tempsplit = NULL;
 
-	if (!my_env)
+	tempsplit = _strtok(command, "/");
+	if (tempsplit && tempsplit[0] && tempsplit[1])
 	{
-		my_env = listify((char **)add);
-		return (NULL);
+		free_double_array(tempsplit);
+		return (command);
 	}
-	if (add)
-		add_node_end(&my_env, add);
-	else if (delete)
-	{
-		len = list_len(my_env);
-		for (i = 0; i < len; i++)
-		{
-			j = 0;
-			tmp = get_node_at_index(my_env, i)->ptr;
-			while (delete && tmp && delete[j] && tmp[j] != '=')
-			{
-				if (delete[j] != tmp[j])
-					break;
-				j++;
-			}
-			if (!(delete[j]) && tmp[j] == '=')
-			{
-				delete_node_at_index(&my_env, i);
-				break;
-			}
-		}
-	}
-	return (arrayify(my_env));
+	free_double_array(tempsplit);
+
+	i = _strlen(path);
+	j = _strlen(command);
+	res = do_mem(sizeof(char) * (i + j + 1 + 1), NULL);
+	_strcat(res, path);
+	_strcat(res, "/");
+	_strcat(res, command);
+	return (res);
 }

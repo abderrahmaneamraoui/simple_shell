@@ -1,10 +1,10 @@
 #include "shell.h"
 
 /**
- * read_textfile - reads a file and returns a string
- * @filename: name of file to read
- * Return: string of what its read
- */
+  * read_textfile - reads a file and returns string of what it read
+  * @filename: name of file to read
+  * Return: string of what it read
+  */
 
 char *read_textfile(char *filename)
 {
@@ -21,7 +21,7 @@ char *read_textfile(char *filename)
 	if (of == -1)
 	{
 		do_mem(0, buff);
-		exit_shell(2, _strcat("can't open", filename), 127);
+		do_exit(2, _strcat("Can't open ", filename), 127);
 	}
 
 	lRead = read(of, buff, 4096);

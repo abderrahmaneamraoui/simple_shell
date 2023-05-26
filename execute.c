@@ -1,124 +1,119 @@
 #include "shell.h"
 
 /**
- * execute_builtin - execute builtins
- * @args: array
- * @bcase: which builtin to execute
- * Return: 0 Success, 1 Failure
- */
-
-int execute_builtin(char **args, int bcase)
+  * exec_builtin - execute function for builtins
+  * @tokens: STDIN tokenized
+  * @bcase: which builtin to execute
+  * Return: 0 if succesful 1 if it fails
+  */
+int exec_builtin(char **tokens, int bcase)
 {
 	int exit = 0;
 	int i = 0;
 
-		switch (bcase)
+	switch (bcase)
 	{
 	case 1:
 	{
-		if (args[1])
+		if (tokens[1])
 		{
-			for (; args[1][i]; i++)
-				if (!_isdigit(args[1][i]))
+			for (; tokens[1][i]; i++)
+				if (!_isdigit(tokens[1][i]))
 				{
-					exit_shell(2, "numeric arguments only\n", exit);
+					do_exit(2, "numeric arguments only\n", exit);
 				}
-			exit = _atoi(args[1]);
+			exit = _atoi(tokens[1]);
 		}
-		exit_shell(2, "", exit);
+		do_exit(2, "", exit);
 		break;
 	}
-		case 2:
-			return (cd_shell(args));
-		case 3:
-			return (env_shell());
-		case 4:
-			return (setenv(args));
-		case 5:
-			return (unsetenv(args));
+	case 2:
+		return (cd_builtin(tokens));
+	case 3:
+		return (env_builtin());
+	case 4:
+		return (setenv_builtin(tokens));
+	case 5:
+		return (unsetenv_builtin(tokens));
 	}
 	return (0);
 }
 
-
 /**
- * access_check - checks if path or permission exists
- * @command: path to command
- * @arg: command
- * Return: exit
+ * check_access - checks if path exists or if permission exists for command
+ * @comm: path to command
+ * @token: command
+ * Return: exit condition
  */
-
-int access_check(char *command, char *arg)
+int check_access(char *comm, char *token)
 {
-	int access = 0;
+	int accessCode = 0;
 
-	access = access(command, F_OK);
-	if (code)
+	accessCode = access(comm, F_OK);
+	if (accessCode)
 	{
-		print_error("Not found\n");
+		my_error(token, 2, NULL);
+		return (2);
 	}
 
-	access = access(command, X_OK);
-	if (access)
+	accessCode = access(comm, X_OK);
+	if (accessCode)
 	{
-		print_error("permission denied\n");
+		my_error(token, 126, NULL);
+		return (126);
 	}
-
 	return (0);
 }
 
 /**
- * prep_execve - preps cmd
- * @arg: commnad to check
- * Return: command prepared for execve
+ * prep_execve - preps cmd by checking current path and then the PATH for cmd
+ * @token: commmand to check
+ * Return: command preped for execve
  */
-
-char *prep_execve(char *arg)
+char *prep_execve(char *token)
 {
 	char **envVars = NULL;
-	char *command = NULL;
+	char *comm = NULL;
 	char *cwd = NULL;
 	char *path = NULL;
-	int access = 0;
+	int accessCode = 0;
 
 	cwd = do_mem(100, NULL);
-	command = find_command_path(cwd, arg);
-	access = access(command, F_OK);
-	if (access)
+	comm = get_full_command(cwd, token);
+	accessCode = access(comm, F_OK);
+	if (accessCode)
 	{
-		envVars = read_line();
-		path = parse_line(line, arg);
-		command = find_command_path(path, arg);
-		free_token(envVars);
+		envVars = get_path();
+		path = find_path(envVars, token);
+		comm = get_full_command(path, token);
+		free_double_array(envVars);
 	}
-	return (command);
+	return (comm);
 }
-
 /**
- * exec_nb - execute function for non builtins
- * @args: STDIN tokenized
- * Return: 0 Success, Failute exit
- */
-
-int exec_nb(char **args)
+  * exec_nb - execute function for non builtins
+  * @tokens: STDIN tokenized
+  * Return: the exit status of the program, 0 if successful
+  */
+int exec_nb(char **tokens)
 {
-	char *command = NULL;
+	char *comm = NULL;
 	pid_t cpid, wid;
-	int status = 0, access = 0;
+	int status = 0, accessCode = 0;
 
-	command = prep_execve(args[0]);
-	while ((access = access_check(command, args[0])))
-		return (access);
+	comm = prep_execve(tokens[0]);
+	while ((accessCode = check_access(comm, tokens[0])))
+		return (accessCode);
 
 	cpid = fork();
 
 	if (cpid == -1)
-		exit_shell("Fork failed");
+		do_exit(2, "Fork failed", EXIT_FAILURE);
 	if (!cpid)
 	{
-		execve(command, args, (char * const *)env_shell());
+		execve(comm, tokens, (char * const *)get_env());
 		perror("");
-		exit_shell("Couldn't execution\n");
+		do_exit(2, "Couldn't exec", EXIT_FAILURE);
 	}
 	else
 	{
@@ -127,35 +122,34 @@ int exec_nb(char **args)
 			if (wid == -1)
 			{
 				perror("waitpid");
-				exit_shell("");
+				do_exit(STDERR_FILENO, "", EXIT_FAILURE);
 			}
 		} while (!WIFEXITED(status) && !WIFSIGNALED(status));
-		do_mem(0, command);
+		do_mem(0, comm);
 	}
 	return (status);
 }
 
 /**
- * search_shell - search for ;, &&, || operators
- * @args: array
- * Return: 0 if none, 1 if ;, 2 if &&, 3 if ||
- */
-
-int search_shell(char **args)
+  * search_ops - search for ;, &&, || operators
+  * @tokens: tokens from std input
+  * Return: 0 if none, 1 if ';', 2 if '&&' 3 if '||'
+  */
+int search_ops(char **tokens)
 {
 	int i = 0;
 
-	if (!args)
+	if (!tokens)
 	{
 		return (0);
 	}
-	for (i = 0; args[i]; i++)
+	for (i = 0; tokens[i]; i++)
 	{
-		if (args[i][0] == ';')
+		if (tokens[i][0] == ';')
 			return (1);
-		if (args[i][0] == '&' && args[i][1] && args[i][1] == '&')
+		if (tokens[i][0] == '&' && tokens[i][1] && tokens[i][1] == '&')
 			return (2);
-		if (args[i][0] == '|' && args[i][1] && args[i][1] == '|')
+		if (tokens[i][0] == '|' && tokens[i][1] && tokens[i][1] == '|')
 			return (3);
 	}
 	return (0);

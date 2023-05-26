@@ -16,96 +16,145 @@
 #include <dirent.h>
 #include <stddef.h>
 
-#define MAX_LEN 1024
-#define MAX_INPUT_LENGTH 1024
-#define BUFFER_SIZE 1024
-
 /**
  * struct list_p - singly linked list
  * @ptr: a malloced address
  * @next: points to the next node
- *
- * Description: singly linked list node structure
- * for Holberton shell project
- */
+*/
 typedef struct list_p
 {
 	void *ptr;
 	struct list_p *next;
 } list_t;
 
+int linum(int add);
+
+char *get_prog_name(char *name);
+
+void my_error(char *command, int status, char *extra);
+
+void signal_handler(int sig);
+
+void main_loop(char *filename);
+
+size_t __list_len(list_t *h);
+
+list_t *__add_node(list_t **head, void *ptr);
+
+list_t *__add_node_end(list_t **head, void *ptr);
+
+void __free_list(list_t *head);
+
+void __free_list_full(list_t *head);
+
+list_t *__get_node_at_index(list_t *head, unsigned int index);
+
+list_t *__insert_node_at_index(list_t **head, unsigned int idx, void *ptr);
+
+int __delete_node_at_index(list_t **head, unsigned int index);
+
 /**
  * struct list_p2 - singly linked list
  * @ptr: a malloced string
  * @next: points to the next node
- *
- * Description: singly linked list node structure
- * for Holberton shell project
- */
+*/
 typedef struct list_p2
 {
 	char *ptr;
 	struct list_p2 *next;
 } list_s;
 
-/* Function prototypes */
-extern char **environ;
+size_t list_len(list_s *h);
 
-char *read_line(void);
-char **parse_line(char *line);
-void print_hello(void);
-void print_prompt(void);
-char **tokenize_input(char *input);
-char *find_command_path(char *command);
-void execute_command(char **args);
-char *custom_getline(void);
-char **tokenize(char *line, char *delim);
-int **get_builtins();
-int env_builtin(void);
-int setenv(char **args);
-int unsetenv(char **args);
-int cd(char **args);
-char **get_path();
-char *get_env_val(char *name);
-char **get_env();
-char **do_env(char *x, char *y);
-void exit_shell(int fd, char *msg, int code);
-int execute(char **args);
-int exec_nb(char **args);
-int search_shell(char **args);
-int execute_builtin(char **args, int bcase);
-int access_check(char *command, char *arg);
-char *prep_execve(char *arg);
-char *read_textfile(char *filename);
-void free_token(char **ptr);
-void free_last_input(void);
-void _puts(char *str);
-void _printerror(char *err);
-int _strlen(char *s);
-int _strcmp(char *s1, char *s2);
-int _strncmp(const char *s1, const char *s2, size_t n);
-char *_strstr(char *haystack, char *needle);
-char *_strchr(char *s, char c);
-char *_strcpy(char *dest, char *src);
-char *_strcat(char *dest, char *src);
-char *_strdup(const char *);
-int _putchar(char);
-unsigned int _strspn(char *s, char *accept);
-int _isdigit(int c);
-char *_memset(char *s, char b, int n);
-int _atoi(char *s);
-size_t __list_len(list_t *h);
-list_t *__add_node(list_t **head, void *ptr);
-list_t *__add_node_end(list_t **head, void *ptr);
-void __free_list(list_t *head);
-char **arrayify(list_s *head);
-list_s *listify(char **arr);
-void free_double(char **list);
+list_s *add_node(list_s **head, char *ptr);
+
+list_s *add_node_end(list_s **head, char *ptr);
+
+void free_list(list_s *head);
+
 void free_list_full(list_s *head);
+
 list_s *get_node_at_index(list_s *head, unsigned int index);
+
 list_s *insert_node_at_index(list_s **head, unsigned int idx, char *ptr);
+
 int delete_node_at_index(list_s **head, unsigned int index);
-void _free(char **list, int count);
+
+char **arrayify(list_s *);
+
+list_s *listify(char **);
+
+void free_double_array(char **);
+
+int _strcmp(char *s1, char *s2);
+
+int _strlen(char *s);
+
+int word_count(char *str, char *delim);
+
+char *_strcat(char *s1, char *s2);
+
+char *_strcpy(char *dest, char *src);
+
+int _atoi(char *s);
+
+int sizeof_command(char **tokens);
+
+int _isdigit(int c);
+
+int has_newline(char *input);
+
+void shiftbuffer(char *input, int newline_index, int filled);
+
+char *_itoa(int num);
+
+char *_reverse(char *str, int n);
+
+char *_memset(char *s, char b, int n);
+
+void *do_mem(size_t size, void *ptr);
+
+void do_exit(int fd, char *msg, int code);
+
+ssize_t else_handle_input(char *lineptr, int stream, char *input, int filled);
+
+ssize_t _getline(char *lineptr, int stream);
+
 char **_strtok(char *str, char *delim);
-void main_loop(char *filename);
+
+char **get_path();
+
+char *get_env_val(char *name);
+
+char *find_path(char **path, char *command);
+
+char **get_env();
+
+char **do_env(char *x, char *y);
+
+char *get_full_command(char *path, char *command);
+
+int setenv_builtin(char **tokens);
+
+int unsetenv_builtin(char **tokens);
+
+int cd_builtin(char **tokens);
+
+char **get_builtins();
+
+int env_builtin(void);
+
+int execute(char **tokens);
+
+int exec_nb(char **tokens);
+
+int search_ops(char **tokens);
+
+int exec_builtin(char **tokens, int bcase);
+
+int check_access(char *comm, char *token);
+
+char *prep_execve(char *token);
+
+char *read_textfile(char *filename);
 #endif
