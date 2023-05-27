@@ -16,11 +16,10 @@
 #include <dirent.h>
 #include <stddef.h>
 
-<<<<<<< HEAD
 #define MAX_LEN 1024
 #define MAX_INPUT_LENGTH 1024
 #define BUFFER_SIZE 1024
-// Function prototypes
+
 extern char **environ;
 
 char *read_line(void);
@@ -42,14 +41,10 @@ void free_last_input(void);
 void _puts(char *str);
 void _printerror(char *err);
 int check_builtin(char **args);
-int _strlen(const char *);
-int _strcmp(const char *s1, const char *s2);
 int _strncmp(const char *s1, const char *s2);
 char *_strstr(char *haystack, char *needle);
 char *_strchr(char *s, char c);
 
-#endif /* SHELL_H */
-=======
 /**
  * struct list_p - singly linked list
  * @ptr: a malloced address
@@ -192,4 +187,3 @@ char *prep_execve(char *token);
 
 char *read_textfile(char *filename);
 #endif
->>>>>>> 25988014c781b3a713f3be1593f74bfcf0bfb687

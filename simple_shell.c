@@ -94,24 +94,10 @@ int main(int argc, char **argv, char **envp)
 	if (argc > 2)
 		return (-1);
 
-<<<<<<< HEAD
-args = tokenize_input(input);
-if (args == NULL)
-{
-fprintf(stderr, "Failed to tokenize input\n");
-continue;
-}
-if (args[0] == NULL)
-{
-free(args);
-continue;
-}
-=======
 	if (argv && argv[1])
 		filename = argv[1];
 
 	signal(SIGINT, signal_handler);
->>>>>>> 25988014c781b3a713f3be1593f74bfcf0bfb687
 
 	do_env((char *)envp, NULL);
 
